@@ -4,7 +4,8 @@ License terms go here
 
 #include <openbabel/babelconfig.h>
 #include <openbabel/obmolecformat.h>
-#include <openbabel/msgpack.h>
+
+#include <openbabel/mmtf_parser.h>
 
 #include <sstream>
 
