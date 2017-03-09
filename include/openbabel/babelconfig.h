@@ -1,159 +1,200 @@
-#ifndef OB_BCONFIG_H
-#define OB_BCONFIG_H
+/* src/config.h.in.  Generated from configure.in by autoheader.  */
 
-//For use with Visual C++ (version 8)
-#ifdef _MSC_VER
-#define HAVE_CONIO_H 1
-#endif
+/* Where the data files are located */
+#define BABEL_DATADIR "/usr/local/share/openbabel"
 
-#define HAVE_CLOCK_T 1
-#define HAVE_IOSTREAM	1
-#define HAVE_FSTREAM 1
-#define HAVE_SSTREAM 1
-#define HAVE_SNPRINTF 1
-#define HAVE_STRNCASECMP 1
-//#define HAVE_LIBZ 1 Causes DLL builds to not work with any file input!
-#define BABEL_VERSION  "2.1"
+/* The version of Open Babel */
+#define BABEL_VERSION "2.4.1"
 
-#define BABEL_DATADIR "."
+/* Version check macro
+   Can be used like #if (OB_VERSION >= OB_VERSION_CHECK(2, 2, 99)) */
+#define OB_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
-#ifdef _MSC_VER
-#define snprintf _snprintf
-#define strncasecmp _strnicmp
-#define strcasecmp _stricmp
-#define rindex(a,b) strrchr((a),(b))
-#endif
+/* OB_VERSION is (major << 16) + (minor << 8) + patch */
+#define OB_VERSION OB_VERSION_CHECK(2, 4, 1)
 
-#if defined( unix ) || defined( __unix__ ) || defined( __unix )
-#define SCANDIR_CONST const
-#define OB_MODULE_PATH "/usr/local/share/openbabel"
+/* The file extension used for shared modules */
 #define MODULE_EXTENSION ".so"
 
-#define HAVE_SYS_TIME_H 1
-#define HAVE_TIME_H 1
-#define TIME_WITH_SYS_TIME 1
-//#define HAVE_DLFCN_H 1
-//#define HAVE_ICONV_H 1
-
-
-#endif
-
-
-
-// Supress warning on deprecated functions
-#pragma warning(disable : 4996)
-// Supress warning that compiler is ignoring C++ exception specification
-#pragma warning( disable : 4290 )
-// Supress warning on signed/unsigned comparison with < or > (harmless, but maybe should be fixed)
-#pragma warning( disable : 4018 )
-// Supress warning on unreferenced formal parameter
-#pragma warning( disable : 4100 )
-
-#ifndef __FUNCTION__
-#define __FUNCTION__ __FILE__
-#endif
-
-//Makes unix input files compatible with VC++6
-#define ALL_READS_BINARY
-
-//Do not use newlinebuf. (All varieties of line endings seem to be handled ok anyway)
-#define NO_NEWLINEBUF
-
-/* Export of functions and global variables from DLLs
-In the header files for the OB core, mol.h etc, exported classes and variables
-have an OBAPI declaration specifiers.
-When building any OBDLL.dll: define OBDLL_EXPORTS.
-When building an application that links with OBDLL.lib and so uses OBDLL.dll:
-define USING_DYNAMIC_LIBS.
-
-In obconversion.h the exported classes have OBCONV declaration specifiers.
-When building OBConv.dll: define OBCONV_EXPORTS.
-
-When building Format dlls: no need for any defines since no exported functions.
-
-In non-Windows systems OBAPI and OBCONV need to be defined as empty.
-*/
-#if defined(USING_DYNAMIC_LIBS)
- #if defined(OBDLL_EXPORTS) //OBDLL being built
-  #define OBAPI __declspec(dllexport)
- #else
-  #define OBAPI __declspec(dllimport)
- #endif
-#else //Everything else (behaviour as original)
- #define OBAPI
-#endif
-
-#if defined(USING_DYNAMIC_LIBS)
- #if defined(OBFPRT_EXPORTS) //OBFPRT being built
-  #define OBFPRT __declspec(dllexport)
- #else
-  #define OBFPRT __declspec(dllimport)
- #endif
-#else //Everything else (behaviour as original)
- #define OBFPRT
-#endif
-
-
-#if defined(USING_DYNAMIC_LIBS)
- #pragma warning (disable : 4251) //no dll interface for some templated classes
- #ifdef OBCONV_EXPORTS
-  #define OBCONV __declspec(dllexport)
- #else
-  #define OBCONV __declspec(dllimport)
- #endif
+// If we are using a recent GCC version with visibility support use it
+#ifdef HAVE_GCC_VISIBILITY
+  #define OB_EXPORT __attribute__ ((visibility("default")))
+  #define OB_IMPORT __attribute__ ((visibility("default")))
+  #define OB_HIDDEN __attribute__ ((visibility("hidden")))
+#elif defined(WIN32) && defined(USING_DYNAMIC_LIBS) && !defined(__MINGW32__)
+ #define OB_EXPORT __declspec(dllexport)
+ #define OB_IMPORT __declspec(dllimport)
+ #define OB_HIDDEN
 #else
-	#define OBCONV //as nothing in non-Windows system
+ #define OB_EXPORT
+ #define OB_IMPORT
+ #define OB_HIDDEN
 #endif
 
-#if defined(USING_DYNAMIC_LIBS)
- #if defined(OBCOMMON_EXPORTS) //OBCommonFormats being built
-  #define OBCOMMON __declspec(dllexport)
- #else
-  #define OBCOMMON __declspec(dllimport)
+/* Used to export symbols for DLL / shared library builds */
+#if defined(MAKE_OBDLL) // e.g. in src/main.cpp
+ #ifndef EXTERN
+  #define EXTERN   OB_EXPORT extern
  #endif
-#else //Everything else (behaviour as original)
- #define OBCOMMON
-#endif
-
-#if defined(USING_DYNAMIC_LIBS)
- #if defined(OBERROR_EXPORTS) //OBError being built
-  #define OBERROR __declspec(dllexport)
- #else
-  #define OBERROR __declspec(dllimport)
+ #ifndef OBAPI
+  #define OBAPI    OB_EXPORT
  #endif
-#else //Everything else (behaviour as original)
- #define OBERROR
-#endif
+ #ifndef OBCOMMON
+  #define OBCOMMON OB_EXPORT
+ #endif
+ #ifndef OBCONV
+  #define OBCONV   OB_EXPORT
+ #endif
+ #ifndef OBERROR
+  #define OBERROR  OB_EXPORT
+ #endif
+ #ifndef OBFPRT
+  #define OBFPRT   OB_EXPORT
+ #endif
+ #ifndef OBFPTR
+  #define OBFPTR   OB_EXPORT
+ #endif
+ #ifndef OBMCDL
+  #define OBMCDL   OB_EXPORT
+ #endif
+ #ifndef OBDEPICT
+  #define OBDEPICT OB_EXPORT
+ #endif
 
-#if defined(OBDLL_EXPORTS) //OBDLL being built
-#  define EXTERN __declspec(dllexport) extern
-#elif defined(USING_OBDLL) //program using OBDLL.dll being built
-#  define EXTERN __declspec(dllimport) extern
-#else //Everything else (behaviour as original)
-#  define EXTERN extern
-#endif
+#else   // defined(MAKE_OBDLL)
 
-/*
-#ifdef _DEBUG
-void* __cdecl operator new(size_t nSize, const char* lpszFileName, int nLine);
-void __cdecl operator delete(void* p, const char* lpszFileName, int nLine);
-#define DEBUG_NEW new(THIS_FILE, __LINE__)
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
+ #ifndef EXTERN
+  #define EXTERN   OB_IMPORT extern
+ #endif
+ #ifndef OBAPI
+  #define OBAPI    OB_IMPORT
+ #endif
+ #ifndef OBCOMMON
+  #define OBCOMMON OB_IMPORT
+ #endif
+ #ifndef OBCONV
+  #define OBCONV   OB_IMPORT
+ #endif
+ #ifndef OBERROR
+  #define OBERROR  OB_IMPORT
+ #endif
+ #ifndef OBFPRT
+  #define OBFPRT   OB_IMPORT
+ #endif
+ #ifndef OBFPTR
+  #define OBFPTR   OB_IMPORT
+ #endif
+ #ifndef OBMCDL
+ #define OBMCDL    OB_IMPORT
+  #ifndef OBDEPICT
+ #define OBDEPICT  OB_IMPORT
+ #endif
+ 
+ #endif
+
 #endif
-*/
 
 #ifdef _MSC_VER
-#ifdef _DEBUG
-#include <crtdbg.h>
-#endif
-#endif
+ // Supress warning on deprecated functions
+ #pragma warning(disable : 4996)
+ // Supress warning that compiler is ignoring C++ exception specification
+ #pragma warning( disable : 4290 )
+ // Supress warning on signed/unsigned comparison with < or > (harmless, but maybe should be fixed)
+ #pragma warning( disable : 4018 )
+ // Supress warning on forcing int etc. value to bool 'true' or 'false' (performance warning)
+ #pragma warning( disable : 4800 )
+ //
+ #pragma warning( disable : 4251 )
 
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, THIS_FILE, __LINE__)
+
+ #include <algorithm>  // std::min and std::max were moved here in C++11
+ #include <crtdbg.h>
+
+ #ifdef _DEBUG
+ #define DEBUG_NEW new(_NORMAL_BLOCK, THIS_FILE, __LINE__)
+ #else
+  #define DEBUG_NEW new
+ #endif
+#endif  // _MSC_VER
+/* have <conio.h> */
+/* #undef HAVE_CONIO_H */
+
+/* have <sys/time.h> */
+#define HAVE_SYS_TIME_H 1
+
+/* have <time.h> */
+#define HAVE_TIME_H 1
+
+/* have <sstream> */
+#define HAVE_SSTREAM 1
+
+/* have symbol clock_t */
+#define HAVE_CLOCK_T 1
+
+/* have symbol rint */
+/* #undef HAVE_RINT */
+
+/* have symbol snprintf */
+#define HAVE_SNPRINTF 1
+
+/* have symbol sranddev */
+/* #undef HAVE_SRANDDEV */
+
+/* have symbol strcasecmp */
+#define HAVE_STRCASECMP 1
+
+/* have symbol strncasecmp */
+#define HAVE_STRNCASECMP 1
+
+/* have struct clock_t */
+#define HAVE_CLOCK_T 1
+
+/* shared pointer implementation to be used */
+#define OB_SHARED_PTR_IMPLEMENTATION std::tr1::shared_ptr
+
+/* header to be included for shared pointers */
+#define OB_SHARED_PTR_HEADER <tr1/memory>
+
+#if defined(WIN32)
+ #ifndef HAVE_ISFINITE
+  #define isfinite _finite
+  #define HAVE_ISFINITE 1
+ #endif
+
+ #ifndef HAVE_SNPRINTF
+  #define snprintf _snprintf
+  #define HAVE_SNPRINTF 1
+ #endif
+
+ #ifndef HAVE_STRCASECMP
+  #define strcasecmp _stricmp
+  #define HAVE_STRCASECMP 1
+ #endif
+
+ #ifndef HAVE_STRNCASECMP
+  #define strncasecmp _strnicmp
+  #define HAVE_STRNCASECMP 1
+ #endif
+#endif  // WIN32
+
+/* #undef SCANDIR_NEEDS_CONST */
+#ifdef SCANDIR_NEEDS_CONST
+ #define SCANDIR_CONST const
 #else
- #define DEBUG_NEW new
+ #define SCANDIR_CONST
 #endif
 
-#endif //OB_BCONFIG_H
+#define OB_MODULE_PATH "/usr/local/lib/openbabel/2.4.1"
+
+#ifndef TIME_WITH_SYS_TIME
+  #ifdef HAVE_SYS_TIME
+    #ifdef HAVE_TIME
+      #define TIME_WITH_SYS_TIME 1
+    #else
+      #define TIME_WITH_SYS_TIME 0
+    #endif
+  #else
+    #define TIME_WITH_SYS_TIME 0
+  #endif
+#endif
+
