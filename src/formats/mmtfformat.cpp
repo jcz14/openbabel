@@ -47,7 +47,16 @@ namespace OpenBabel
   /////////////////////////////////////////////////////////////////
   bool MMTFFormat::ReadMolecule(OBBase* pOb, OBConversion* pConv)
   {
-    //read data
+	OBMol* pmol = pOb->CastAndClear<OBMol>();
+	if(pmol==NULL)
+		return false;
+
+	//Define some references so we can use the old parameter names
+	istream &ifs = *pConv->GetInStream();
+	OBMol &mol = *pmol;
+	const char* title = pConv->GetTitle();
+
+
   }
 
   ////////////////////////////////////////////////////////////////
