@@ -5,7 +5,8 @@ License terms go here
 #include <openbabel/babelconfig.h>
 #include <openbabel/obmolecformat.h>
 
-#include <openbabel/mmtf_parser.h>
+#include "mmtf_parser.h"
+#include "msgpack.h"
 
 #include <sstream>
 
@@ -27,6 +28,12 @@ namespace OpenBabel
       return "MMTF plugin description goes here\n";
     };
 
+    //Write support not yet implemented
+    virtual unsigned int Flags()
+    {
+        return NOTWRITABLE;
+    };
+
     virtual const char* SpecificationURL()
     {return "http://openbabel.org/wiki/MMTF";}; //optional
 
@@ -37,7 +44,7 @@ namespace OpenBabel
     ////////////////////////////////////////////////////
     /// The "API" interface functions
     virtual bool ReadMolecule(OBBase* pOb, OBConversion* pConv);
-    virtual bool WriteMolecule(OBBase* pOb, OBConversion* pConv);
+    //virtual bool WriteMolecule(OBBase* pOb, OBConversion* pConv);
   };
   //***
 
@@ -56,14 +63,16 @@ namespace OpenBabel
 	OBMol &mol = *pmol;
 	const char* title = pConv->GetTitle();
 
+	mol.BeginModify();
+
 
   }
 
   ////////////////////////////////////////////////////////////////
 
-  bool MMTFFormat::WriteMolecule(OBBase* pOb, OBConversion* pConv)
-  {
-    //write data
-  }
+//  bool MMTFFormat::WriteMolecule(OBBase* pOb, OBConversion* pConv)
+//  {
+//    //write data
+//  }
 
 } //namespace OpenBabel
