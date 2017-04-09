@@ -4,6 +4,7 @@ License terms go here
 
 #include <openbabel/babelconfig.h>
 #include <openbabel/obmolecformat.h>
+#include <openbabel/data.h>
 
 #include <mmtf_parser.h>
 #include <msgpack.h>
@@ -32,7 +33,8 @@ namespace OpenBabel
 
     virtual const char* Description()
     {
-      return "MMTF plugin description goes here\n";
+      return "MMTF - Macromolecular Transmission Format\n"
+    		 "https://mmtf.rcsb.org/\n";
     };
 
     virtual const char* SpecificationURL()
@@ -51,6 +53,9 @@ namespace OpenBabel
 
   //Make an instance of the format class
   MMTFFormat theMMTFFormat;
+
+  //Make an instance of the OBElementTable class
+  OBElementTable etab;
 
   /////////////////////////////////////////////////////////////////
   bool MMTFFormat::ReadMolecule(OBBase* pOb, OBConversion* pConv)
@@ -124,8 +129,9 @@ namespace OpenBabel
 //					printf("element: %s\n", group.elementList[l]);
 
 					OBAtom *atom  = mol.NewAtom();
-					atom->SetAtomicNum(group.elementList[l]);
 					atom->SetVector(mmtfContainer->xCoordList[atomIndex], mmtfContainer->yCoordList[atomIndex], mmtfContainer->zCoordList[atomIndex]);
+					atom->SetTitle(group.atomNameList[l]);
+					atom->SetAtomicNum(etab.GetAtomicNum(group.elementList[l]));
 
 					atomIndex++;
 				}
@@ -142,6 +148,9 @@ namespace OpenBabel
 //		printf("Atom Two: %d\n", mmtfContainer->bondAtomList[i * 2 + 1]);
 //		printf("Bond order: %d\n", mmtfContainer->bondOrderList[i]);
 	}
+
+	mol.EndModify();
+	return(true);
   }
 
   ////////////////////////////////////////////////////////////////
