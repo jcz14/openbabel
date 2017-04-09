@@ -4,7 +4,6 @@ License terms go here
 
 #include <openbabel/babelconfig.h>
 #include <openbabel/obmolecformat.h>
-#include <openbabel/data.h>
 
 #include <mmtf_parser.h>
 #include <msgpack.h>
@@ -53,9 +52,6 @@ namespace OpenBabel
 
   //Make an instance of the format class
   MMTFFormat theMMTFFormat;
-
-  //Make an instance of the OBElementTable class
-  OBElementTable etab;
 
   /////////////////////////////////////////////////////////////////
   bool MMTFFormat::ReadMolecule(OBBase* pOb, OBConversion* pConv)
@@ -113,25 +109,19 @@ namespace OpenBabel
 //					printf("Atom id One: %d\n", (atomOffset + group.bondAtomList[l * 2])); //  # atomIndex1
 //					printf("Atom id Two: %d\n", (atomOffset + group.bondAtomList[l * 2 + 1])); //  # atomIndex2
 //					printf("Bond order: %d\n", group.bondOrderList[l]);
+
+
 				}
+
 				int groupAtomCount = group.atomNameListCount;
 				for (l = 0; l < groupAtomCount; l++) {
-//					printf("atomIndex: %d\n", atomIndex);
-//					printf("x coord: %f\n", mmtfContainer->xCoordList[atomIndex]);
-//					printf("y coord: %f\n", mmtfContainer->yCoordList[atomIndex]);
-//					printf("z coord: %f\n", mmtfContainer->zCoordList[atomIndex]);
-//					printf("b factor: %f\n", mmtfContainer->bFactorList[atomIndex]);
-//					printf("atom id: %d\n", mmtfContainer->atomIdList[atomIndex]);
-//					printf("altLocList: %c\n", safechar(mmtfContainer->altLocList[atomIndex]));
-//					printf("occupancy: %f\n", mmtfContainer->occupancyList[atomIndex]);
-//					printf("charge: %d\n", group.formalChargeList[l]);
-//					printf("atom name: %s\n", group.atomNameList[l]);
-//					printf("element: %s\n", group.elementList[l]);
-
 					OBAtom *atom  = mol.NewAtom();
-					atom->SetVector(mmtfContainer->xCoordList[atomIndex], mmtfContainer->yCoordList[atomIndex], mmtfContainer->zCoordList[atomIndex]);
+
 					atom->SetTitle(group.atomNameList[l]);
+					atom->SetId(mmtfContainer->atomIdList[atomIndex]);
+					atom->SetVector(mmtfContainer->xCoordList[atomIndex], mmtfContainer->yCoordList[atomIndex], mmtfContainer->zCoordList[atomIndex]);
 					atom->SetAtomicNum(etab.GetAtomicNum(group.elementList[l]));
+					atom->SetFormalCharge(group.formalChargeList[l]);
 
 					atomIndex++;
 				}
