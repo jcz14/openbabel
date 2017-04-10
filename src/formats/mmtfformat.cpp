@@ -73,7 +73,6 @@ namespace OpenBabel
 
 	mol.SetTitle(title);
 	mol.SetChainsPerceived();
-
 	mol.BeginModify();
 
 	// traverse models
@@ -102,28 +101,25 @@ namespace OpenBabel
 //				printf("Single letter code: %c\n", group.singleLetterCode);
 //				printf("Chem comp type: %s\n", group.chemCompType);
 				int atomOffset = atomIndex;
-
 				int l;
-				for (l = 0; l < group.bondOrderListCount; l++) {
-					// ****** Issue here - I get print outs of the same each time ******
-//					printf("Atom id One: %d\n", (atomOffset + group.bondAtomList[l * 2])); //  # atomIndex1
-//					printf("Atom id Two: %d\n", (atomOffset + group.bondAtomList[l * 2 + 1])); //  # atomIndex2
-//					printf("Bond order: %d\n", group.bondOrderList[l]);
-
-
-				}
-
 				int groupAtomCount = group.atomNameListCount;
-				for (l = 0; l < groupAtomCount; l++) {
-					OBAtom *atom  = mol.NewAtom();
 
+				for (l = 0; l < groupAtomCount; l++) {
+					OBAtom *atom = mol.NewAtom();
 					atom->SetTitle(group.atomNameList[l]);
 					atom->SetId(mmtfContainer->atomIdList[atomIndex]);
 					atom->SetVector(mmtfContainer->xCoordList[atomIndex], mmtfContainer->yCoordList[atomIndex], mmtfContainer->zCoordList[atomIndex]);
 					atom->SetAtomicNum(etab.GetAtomicNum(group.elementList[l]));
 					atom->SetFormalCharge(group.formalChargeList[l]);
-
 					atomIndex++;
+				}
+
+				for (l = 0; l < group.bondOrderListCount; l++) {
+					// ****** Issue here - I get print outs of the same each time ******
+					OBAtom *firstAtom = atomOffset + group.bondAtomList[l * 2];
+					OBAtom *connectedAtom = atomOffset + group.bondAtomList[l * 2 + 1];
+					OBBond *bond = mol.GetBond(firstAtom, connectedAtom);
+					bond->SetBondOrder(group.bondOrderList[l]);
 				}
 				groupIndex++;
 			}
