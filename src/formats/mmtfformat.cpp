@@ -5,7 +5,7 @@ License terms go here
 #include <openbabel/babelconfig.h>
 #include <openbabel/obmolecformat.h>
 
-#include <mmtf_parser.h>
+#include "mmtf_parser.h"
 #include <msgpack.h>
 
 #include <sstream>
@@ -53,6 +53,9 @@ namespace OpenBabel
   //Make an instance of the format class
   MMTFFormat theMMTFFormat;
 
+  //Create an instance of the MMTF container
+  MMTF_container* mmtfContainer = MMTF_container_new();
+
   /////////////////////////////////////////////////////////////////
   bool MMTFFormat::ReadMolecule(OBBase* pOb, OBConversion* pConv)
   {
@@ -63,7 +66,10 @@ namespace OpenBabel
 	istream &ifs = *pConv->GetInStream();
 	OBMol &mol = *pmol;
 	const char* title = pConv->GetTitle();
-	MMTF_container* mmtfContainer = ifs;
+
+	char* input = new char [pConv->GetInLen()];
+	ifs.read(input, pConv->GetInLen());
+	MMTF_unpack_from_string(input, pConv->GetInLen(), mmtfContainer);
 
 	// initialize index counters
 	int modelIndex = 0;
@@ -100,6 +106,9 @@ namespace OpenBabel
 //				printf("Group name: %s\n", group.groupName);
 //				printf("Single letter code: %c\n", group.singleLetterCode);
 //				printf("Chem comp type: %s\n", group.chemCompType);
+				OBResidue *residue = mol.NewResidue();
+				residue->SetName(group.groupName);
+
 				int atomOffset = atomIndex;
 				int l;
 				int groupAtomCount = group.atomNameListCount;
@@ -116,8 +125,8 @@ namespace OpenBabel
 
 				for (l = 0; l < group.bondOrderListCount; l++) {
 					// ****** Issue here - I get print outs of the same each time ******
-					OBAtom *firstAtom = atomOffset + group.bondAtomList[l * 2];
-					OBAtom *connectedAtom = atomOffset + group.bondAtomList[l * 2 + 1];
+					OBAtom *firstAtom = mol.GetAtom(atomOffset + group.bondAtomList[l * 2] + 1);
+					OBAtom *connectedAtom = mol.GetAtom(atomOffset + group.bondAtomList[l * 2 + 1] + 1);
 					OBBond *bond = mol.GetBond(firstAtom, connectedAtom);
 					bond->SetBondOrder(group.bondOrderList[l]);
 				}
@@ -127,14 +136,13 @@ namespace OpenBabel
 		}
 		modelIndex++;
 	}
-//	printf("Number of inter group bonds: %d\n",	(int) mmtfContainer->bondOrderListCount);
 	for (i = 0; i < mmtfContainer->bondOrderListCount; i++) {
 		// ****** Issue here - seems too few (two entries for 4HHB).******
-//		printf("Atom One: %d\n", mmtfContainer->bondAtomList[i * 2]);
-//		printf("Atom Two: %d\n", mmtfContainer->bondAtomList[i * 2 + 1]);
-//		printf("Bond order: %d\n", mmtfContainer->bondOrderList[i]);
+		OBAtom *firstAtom = mol.GetAtom(mmtfContainer->bondAtomList[i * 2] + 1);
+		OBAtom *connectedAtom = mol.GetAtom(mmtfContainer->bondAtomList[i * 2 + 1] + 1);
+		OBBond *bond = mol.GetBond(firstAtom, connectedAtom);
+		bond->SetBondOrder(mmtfContainer->bondOrderList[i]);
 	}
-
 	mol.EndModify();
 	return(true);
   }
