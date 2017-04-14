@@ -96,18 +96,19 @@ namespace OpenBabel
 			// traverse groups
 			int k;
 			for (k = 0; k < chainGroupCount; k++) {
+				OBResidue *residue = mol.NewResidue();
 //				printf("groupIndex: %d\n", groupIndex);
 //				printf("groupId: %d\n", mmtfContainer->groupIdList[groupIndex]);
+				residue->SetNum(mmtfContainer->groupIdList[groupIndex]);
 //				printf("insCodeList: %c\n", safechar(mmtfContainer->insCodeList[groupIndex]));
 //				printf("secStruc: %d\n", mmtfContainer->secStructList[groupIndex]);
 //				printf("seqIndex: %i\n", mmtfContainer->sequenceIndexList[groupIndex]);
 //				printf("groupType: %d\n", mmtfContainer->groupTypeList[groupIndex]);
 				MMTF_GroupType group = mmtfContainer->groupList[mmtfContainer->groupTypeList[groupIndex]];
 //				printf("Group name: %s\n", group.groupName);
+				residue->SetName(group.groupName);
 //				printf("Single letter code: %c\n", group.singleLetterCode);
 //				printf("Chem comp type: %s\n", group.chemCompType);
-				OBResidue *residue = mol.NewResidue();
-				residue->SetName(group.groupName);
 
 				int atomOffset = atomIndex;
 				int l;
@@ -120,6 +121,7 @@ namespace OpenBabel
 					atom->SetVector(mmtfContainer->xCoordList[atomIndex], mmtfContainer->yCoordList[atomIndex], mmtfContainer->zCoordList[atomIndex]);
 					atom->SetAtomicNum(etab.GetAtomicNum(group.elementList[l]));
 					atom->SetFormalCharge(group.formalChargeList[l]);
+					residue->AddAtom(atom);
 					atomIndex++;
 				}
 

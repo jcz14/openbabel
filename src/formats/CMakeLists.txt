@@ -117,6 +117,7 @@ set(formats_misc
       mdffformat
       mmcifformat
       mmodformat
+      mmtfformat
       moldenformat
       mpdformat
       mpqcformat
@@ -140,6 +141,10 @@ set(formats_misc
       xyzformat
       yasaraformat
       )
+
+set(mmtfformat_additional_sources ./mmtf_parser.c)
+set(mmtfformat_additional_sources ./mmtf_parser.h)
+set(mmtfformat_additional_sources ./mmtf_parser_private.h)
 
 if(MSVC OR SHARED_POINTER)
   set(formats_misc
