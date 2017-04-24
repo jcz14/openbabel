@@ -6,7 +6,7 @@ License terms go here
 #include <openbabel/obmolecformat.h>
 
 #include "mmtf_parser.h"
-#include <msgpack.h>
+#include "msgpack.h"
 
 #include <sstream>
 #include <stdio.h>
@@ -67,9 +67,9 @@ namespace OpenBabel
 	OBMol &mol = *pmol;
 	const char* title = pConv->GetTitle();
 
-	char* input = new char [pConv->GetInLen()];
-	ifs.read(input, pConv->GetInLen());
-	MMTF_unpack_from_string(input, pConv->GetInLen(), mmtfContainer);
+	istreambuf_iterator<char> eos;
+	string input (istreambuf_iterator<char>(ifs), eos);
+	MMTF_unpack_from_string(input.c_str(), input.size(), mmtfContainer);
 
 	// initialize index counters
 	int modelIndex = 0;

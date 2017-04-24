@@ -143,8 +143,7 @@ set(formats_misc
       )
 
 set(mmtfformat_additional_sources ./mmtf_parser.c)
-set(mmtfformat_additional_sources ./mmtf_parser.h)
-set(mmtfformat_additional_sources ./mmtf_parser_private.h)
+set(libs ${libs} msgpackc)
 
 if(MSVC OR SHARED_POINTER)
   set(formats_misc
